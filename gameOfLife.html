@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+    
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Game of Life</title>
+        <meta name="description" content="">
+        
+    </head>
+    <body>
+        
+        <h1>Game of Life</h1>
+        
+        
+        <canvas id="gameCanvas"  width="300" height="300" style="border: 3px solid">   </canvas>
+        
+        <p>
+        Please input a number between 0 and 8. Press Fill Cell to add a live cell to that space. Once you have a set up you like press next turn button to see how the game of life progresses. Space 0 is the top left cell and space 8 is the bottom right. Once you have picked your starting seed you cannot add to it. Make sure you are happy with your starting seed before pressing the next turn button. If you want to start a new grid press the start again button.
+        </p>
+        <input type="number" id="cellNo" value="0" max="8" min="0" maxlength="1">
+        
+        <button id="turnButton" onclick="fillCell()">Fill Cell </button>
+        
+        
+        <p>
+        
+        </p>
+        <button onclick="nextTurn()">Next Turn</button>
+        
+        <button onclick="startAgain()">Start Again</button>
+        <p>
+            Assumptions I made about the problem.
+            I assumed that the user would be able to pick thier own starting seed.
+            I assumed that the user would be allowed to progress the game at thier own pace using a button to move on to the next turn
+            
+        </p>
+       
+        
+        
+        
+           <script>
+                
+             //array with all coordinates need to draw cells
+             var cellsCoords = [[50,50],[150,50], [250,50], [50,150], [150,150], [250,150], [50,250], [150,250], [250,250]];
+             //array with starting live status
+             var cellsLife = [false,false,false,false,false,false,false,false,false];
+             //array used to determine the next state each cell will need to be in for the next turn. 0 being unchanged from initial state, 1 being removed and 2 being drawn
+             var prepCells = [0,0,0,0,0,0,0,0,0];
+             
+             
+        //find the game canvas so we can start drawing the grid
+            var can = document.getElementById("gameCanvas");
+            var ctx = can.getContext("2d");
+            //loop through the x coordinates every 100 px until the maximum 300 px is reached
+             for(x=0; x<=300; x+=100){
+                 //loop through the y coordinates every 100 px until the maximum 300 px is reached
+                 for(y=0; y<=300; y+= 100){
+            // draw a straight line directly down every 100 px on the x
+             ctx.moveTo(x, 0);
+             ctx.lineTo(x, 300);
+             ctx.stroke();   
+            // draw a straight line directly across every 100 px on the y
+             ctx.moveTo(0,y);
+             ctx.lineTo(300,y);
+             ctx.stroke();
+                     
+                 }
+             };
+               //reset the page to allow the user to try again
+               function startAgain(){
+                   location.reload();
+               }
+               //get the number entered by the user and pass it to the drawCell function so that a live cell can be drawn
+               function fillCell(){
+                   
+                var x = document.getElementById("cellNo").value;
+                   drawCell(x);
+                   }
+                   
+             //draws a live cell in the required grid space
+             function drawCell(x){
+                 ctx.fillRect(cellsCoords[x][0], cellsCoords[x][1], 10, 10);
+                 cellsLife[x] = true;
+             }
+              
+               //clear cell from required grid space
+               function clearCell(x){
+                 ctx.clearRect(cellsCoords[x][0], cellsCoords[x][1],10,10);
+                   cellsLife[x] = false;
+
+               }
+             
+               //allows the user to click the next turn button to move onto the next iteration. Calls a function which checks every grid spaces current status and neighbours status to decide next turns status.
+             function nextTurn(){
+                 
+                //once the user has decided to start the next turn, stop them from adding new cells to the grid. If they want to try again they can press the start again button.
+              document.getElementById("cellNo").disabled = true;
+              document.getElementById("turnButton").disabled = true;
+
+                 prepCellChecks(0);
+                 prepCellChecks(1);
+                 prepCellChecks(2);
+                 prepCellChecks(3);
+                 prepCellChecks(4);
+                 prepCellChecks(5);
+                 prepCellChecks(6);
+                 prepCellChecks(7);
+                 prepCellChecks(8);
+ 
+                }
+             
+//this function creates the arrays needed to track all cells neighbours
+             function prepCellChecks (x){
+                 
+                 //create new arrays using the current live status of the grid cells
+                 var cell0Nbs = [cellsLife[1], cellsLife[3], cellsLife[4]];
+                 var cell1Nbs = [cellsLife[0], cellsLife[2], cellsLife[3], cellsLife[4], cellsLife[5]];
+                 var cell2Nbs = [cellsLife[1], cellsLife[4], cellsLife[5]];
+                 var cell3Nbs = [cellsLife[0], cellsLife[1], cellsLife[4], cellsLife[6], cellsLife[7]];
+                 var cell4Nbs = [cellsLife[0], cellsLife[1], cellsLife[2], cellsLife[3], cellsLife[5], cellsLife[6], cellsLife[7], cellsLife[8] ];
+                 var cell5Nbs = [cellsLife[1], cellsLife[2], cellsLife[4], cellsLife[7], cellsLife[8]];
+                 var cell6Nbs = [cellsLife[3], cellsLife[4], cellsLife[7]];
+                 var cell7Nbs = [cellsLife[3], cellsLife[4], cellsLife[5], cellsLife[6], cellsLife[8]];
+                 var cell8Nbs = [cellsLife[4], cellsLife[5], cellsLife[7]];
+
+                 //switch statement calls the cellchecks function for each case. 0 being the top left space and 8 being the bottom right space.
+                 switch(x){
+                        case 0:
+                        cellChecks(x, cell0Nbs);
+                        break;
+                     case 1:
+                         cellChecks(x, cell1Nbs);
+                         break;
+                    case 2:
+                         cellChecks(x, cell2Nbs);
+                         break;
+                    case 3:
+                         cellChecks(x, cell3Nbs);
+                         break;
+                    case 4:
+                         cellChecks(x, cell4Nbs);
+                         break;
+                    case 5:
+                         cellChecks(x, cell5Nbs);
+                         break;
+                    case 6:
+                         cellChecks(x, cell6Nbs);
+                         break;
+                    case 7:
+                         cellChecks(x, cell7Nbs);
+                         break;
+                     case 8:
+                         cellChecks(x, cell8Nbs);
+                      // this function call handles all checks and puts the drawing into motion. it is neccsearry to do checks first and then draw as drawing and clearing on the fly breaks the rules of the game. This ensures that each squares status is checked first before any adding or removing is done.
+                         handleCells();
+                         break;
+                        }
+             }
+        
+               // this function loops through each cells neigbours to check if they are alive or not. depneding on the result of check the cell will be destroyed or remian alive.
+          function cellChecks(cell, array){
+              
+              //live cell count
+              var count = 0;
+              //loop through the neighbour array and add 1 to count if a neighbour is alive
+              for(i=0; i<= array.length; i+= 1){
+                            if(array[i] == true){
+                                count+=1;
+                           
+                            }
+                        };
+                   console.log(count);
+                // if the current cell being checked has less than two or more than 3 neighbours it is marked to be cleared in the prepcells array.
+                          if(count < 2 ||  count > 3){
+                           //     clearCell(cell);
+                                prepCells[cell] = 1;
+              // if the currnet cell being checked is dead but has 3 neighbours then it is marked to be brought to life in the prep cells array         
+                            }else if (cellsLife[cell] == false && count == 3){
+                            //    drawCell (cell);
+                                prepCells[cell] = 2;
+                            } 
+          }
+               //this function loops through the prep cells array and makes the required changes to the game board depending on if the cell space has been marked to drawn on, removed from or left alone.
+               function handleCells(){
+                   
+                   for(i=0; i<= prepCells.length; i+= 1){
+                        if(prepCells[i]  == 2){
+                            drawCell(i);
+                    }else if(prepCells[i] == 1) {
+                    clearCell(i);
+                }   
+                   }
+               }
+               
+        </script>
+    </body>
+</html>
